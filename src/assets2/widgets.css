@@ -1,0 +1,20 @@
+.rc-slider-track {
+    background-color: #12abdb;
+    left: 0;
+  }
+  
+  .rc-slider-dot-active {  
+    border-color: #12abdb;
+    border: solid 2px #12abdb;
+  }
+  .rc-slider-handle {
+    background-color: #12abdb;
+    border-color: #12abdb;
+  }
+  .rc-slider {
+    left: 0;
+    border-radius:0px;
+  }
+  body {
+    background-color: #272936;
+    }
