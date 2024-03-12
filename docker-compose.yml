@@ -16,7 +16,7 @@ services:
         traefik.port: "8050" # update to Exposed port from Dockerfile
         traefik.http.middlewares.test-auth.basicauth.users: "test:bestpassword"
     ports:
-      - 1769:8050 #update both ports (1769 is project port (must be unique!), 8050 is Exposed from Dockerfile (can be duplicate!))
+      - 1903:8050 #update both ports (1769 is project port (must be unique!), 8050 is Exposed from Dockerfile (can be duplicate!))
     networks:
       - web
 
