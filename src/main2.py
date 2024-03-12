@@ -15,8 +15,8 @@ server = app.server
 
 # -- Import or create data here that is used for visualizations
 
-ai_garage_logo = Image.open('assets/AIGarage_logo.png')
-invent_logo = Image.open('assets/capgemini_invent_logo.png')
+ai_garage_logo = Image.open('assets2/AIGarage_logo.png')
+invent_logo = Image.open('assets2/capgemini_invent_logo.png')
 
 # ------------------------------------------------------------------------------
 # App layout & style formats
