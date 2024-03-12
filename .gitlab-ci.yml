@@ -1,0 +1,77 @@
+# ###############################################################################################-
+# Author(s)     : Philipp Schwarz
+#                 Capgemini Invent 2019
+# Description   : Gitlab Project Template
+# STEP 0        : Test
+# STEP 1        : Deploy to staging server
+# STEP 2        : Deploy to production server
+# 
+# STATUS        : DEV
+# ###############################################################################################-
+
+image: ubuntu:16.04 
+
+stages:
+  - push
+
+variables:
+  IP_PRODUCTION_SERVER: '40.68.77.219'
+  IP_STAGING_SERVER: '40.115.32.255'
+  APPNAME: 'example_dash-app' # update, this will also be the name for the link to reach the asset
+
+staging:
+  stage: push
+  before_script:
+      # install ssh-agent
+      - echo $(ls)
+      - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client rsync -y )'
+      # run ssh-agent
+      - eval $(ssh-agent -s)
+      #copy key to file
+      - echo "$SSH_PRIVATE_KEY" > ./key.file
+      - chmod 400 ./key.file
+      # add ssh key stored in SSH_PRIVATE_KEY variable to the agent store
+      - ssh-add ./key.file
+      # disable host key checking (NOTE: makes you susceptible to man-in-the-middle attacks.)
+      - mkdir -p ~/.ssh
+      - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+      # Stops and removes containers and networks created - defined in compose file
+      - ssh pt-support@$IP_STAGING_SERVER  "(export APPNAME=$APPNAME && cd trx/$APPNAME && docker-compose down) || (echo DockerDoesNotExist)"
+      # Remove old directory and create empty new directory
+      - ssh -t pt-support@$IP_STAGING_SERVER  "sudo rm -rf trx/$APPNAME; mkdir trx/$APPNAME" 
+      # Copy all files from gitlab to Azure VM into newly created directory
+      - scp -r ./* pt-support@$IP_STAGING_SERVER:trx/$APPNAME
+      # Builds and starts containers of all services - defined in compose file
+      - ssh pt-support@$IP_STAGING_SERVER  "export APPNAME=$APPNAME && cd trx/$APPNAME && docker-compose up --build -d" 
+  only:
+  - staging
+
+production:
+  stage: push
+  before_script:
+      # install ssh-agent
+      - echo $(ls)
+      - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client rsync -y )'
+      # run ssh-agent
+      - eval $(ssh-agent -s)
+      #copy key to file
+      - echo "$SSH_PRIVATE_KEY" > ./key.file
+      - chmod 400 ./key.file
+      # add ssh key stored in SSH_PRIVATE_KEY variable to the agent store
+      - ssh-add ./key.file
+      # disable host key checking (NOTE: makes you susceptible to man-in-the-middle attacks)
+      - mkdir -p ~/.ssh
+      - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+      # Stops and removes containers and networks created - defined in compose file
+      - ssh pt-support@$IP_PRODUCTION_SERVER  "(export APPNAME=$APPNAME && cd trx/$APPNAME && docker-compose down) || (echo DockerDoesNotExist)"
+      # Remove old directory and create empty new directory
+      - ssh -t pt-support@$IP_PRODUCTION_SERVER  "sudo rm -rf trx/$APPNAME; mkdir trx/$APPNAME" 
+      # Copy all files from gitlab to Azure VM into newly created directory
+      - scp -r ./* pt-support@$IP_PRODUCTION_SERVER:trx/$APPNAME
+      # Builds and starts containers of all services - defined in compose file
+      - ssh pt-support@$IP_PRODUCTION_SERVER  "export APPNAME=$APPNAME && cd trx/$APPNAME && docker-compose up --build -d" 
+  only:
+  - main
+
