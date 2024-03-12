@@ -17,7 +17,7 @@ stages:
 variables:
   IP_PRODUCTION_SERVER: '40.68.77.219'
   IP_STAGING_SERVER: '40.115.32.255'
-  APPNAME: 'example_dash-app' # update, this will also be the name for the link to reach the asset
+  APPNAME: 'xai_dash-app' # update, this will also be the name for the link to reach the asset
 
 staging:
   stage: push
